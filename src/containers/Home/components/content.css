@@ -1,0 +1,23 @@
+$left-color: #2994B2;
+$right-color: #FCE38A;
+$font-color: #FFFBE0;
+
+.padding-0 {
+  padding: 0;
+}
+
+.left-content{
+  background-color: $left-color;
+  color: $font-color;
+  display: flex;1
+  align-items: center;
+  justify-content: center;
+  p{
+    font-size: 20pt;
+  }
+}
+
+.right-content{
+  background-color: $right-color;
+  color: $font-color;
+}
