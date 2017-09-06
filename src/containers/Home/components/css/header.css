@@ -1,0 +1,21 @@
+$top-color: #52524E;
+$font-color: #D4D6C8;
+
+header {
+  position: fixed;
+  top:0;
+  left:0;
+  right:0;
+  z-index: 1100;
+  background-color: $top-color;
+  width:100%;
+  p {
+    color: $font-color;
+    font-size: 16pt;
+  }
+}
+
+/* .hi {
+  font-size: 14pt;
+  color: $test;
+} */

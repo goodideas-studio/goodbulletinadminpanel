@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Row, Col, Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink } from 'reactstrap';
+import {Row, Col, Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink } from 'reactstrap';
 
 
 export default class Header extends Component {
@@ -19,18 +19,18 @@ export default class Header extends Component {
   render() {
     return (
       <header>
-        <Row>
-          <Col xs="12" sm="12">
+        <Row className="margin-0">
+          <Col xs="12" sm="12" className="padding-0">
             <Navbar light toggleable>
               <NavbarToggler right onClick={this.toggle} />
-              <NavbarBrand href="/">公佈欄</NavbarBrand>
+              <NavbarBrand href="/"><p>公佈欄</p></NavbarBrand>
               <Collapse isOpen={this.state.isOpen} navbar>
                 <Nav className="ml-auto" navbar>
                   <NavItem>
-                    <NavLink href="/components/">Components</NavLink>
+                    <NavLink href="/components/"><p>Components</p></NavLink>
                   </NavItem>
                   <NavItem>
-                    <NavLink href="https://github.com/reactstrap/reactstrap">Github</NavLink>
+                    <NavLink href="https://github.com/reactstrap/reactstrap"><p>Github</p></NavLink>
                   </NavItem>
                 </Nav>
               </Collapse>
