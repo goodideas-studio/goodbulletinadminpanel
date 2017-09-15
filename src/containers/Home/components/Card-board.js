@@ -6,7 +6,7 @@ export default class Speech extends Component {
   static propTypes = {
     icon: PropTypes.string,
     title: PropTypes.string,
-    content: PropTypes.string
+    content: PropTypes.number
   }
 
   render() {

@@ -15,6 +15,7 @@ $form-space-font: #393E46;
 $table-color: #F8F8FF;
 $table-font: #393E46;
 
+$create-button-color: #122D42;
 $edit-button-color: #122D42;
 $delete-button-color:#122D42;
 $button-color: #F9F7F7;
@@ -165,10 +166,16 @@ hr {
   margin-top:100px;
 }
 
+.create-button{
+  color: $button-color;
+  background-color: $create-button-color;
+}
+
 .edit-button{
   color: $button-color;
   background-color: $edit-button-color;
 }
+
 .delete-button{
   color: $button-color;
   background-color: $delete-button-color;

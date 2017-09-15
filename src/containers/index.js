@@ -8,6 +8,19 @@ import 'bootstrap/dist/css/bootstrap.css';
 import Home from './Home';
 import NotFound from './NotFound';
 
+// class MainComponent extends React.Component {
+//   componentWillMount = () => {
+//     import('./Home').then((Component) => {
+//       this.Component = Component;
+//       this.forceUpdate();
+//     });
+//   }
+//   render = () => (
+//     this.Component ? <this.Component.default /> : null
+//   )
+// }
+
+
 const Main = () => (
   <Router>
     <Switch>
