@@ -6,6 +6,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 
 // import relative path
 import Home from './Home';
+import Login from './Login';
 import NotFound from './NotFound';
 
 // class MainComponent extends React.Component {
@@ -24,7 +25,8 @@ import NotFound from './NotFound';
 const Main = () => (
   <Router>
     <Switch>
-      <Route exact path="/" component={Home} />
+      <Route exact path="/" component={Login} />
+      <Route exact path="/home/" component={Home} />
       <Route component={NotFound} />
     </Switch>
   </Router>

@@ -1,0 +1,88 @@
+$content-background-color: #FEFFEA;
+
+$first-color: #FEFFEA;
+$second-color: #F2FECA;
+$third-color: #FDFCE0;
+
+$font-color: #FEFFEA;
+
+$login-place-color: #4A3333;
+$login-button-color: #2EB872;
+$facebook-button-color: #4267b2;
+
+.page {
+  /* font-family: 'Noto Serif', serif; */
+  font-weight: bold;
+  color: $font-color;
+  font-size: 8pt;
+  height: 100vh;
+  width: 100vw;
+  background-color: $content-background-color;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  animation-name: page-color;
+  animation-delay: 4s;
+  animation-duration: 12s;
+  animation-iteration-count: infinite;
+
+  .title-place {
+    height: 200px;
+    width: 500px;
+  }
+  .title-place p {
+    font-family: 'Kaushan Script', cursive;
+    font-size: 36pt;
+    color: #4A3333;
+  }
+  .login-title {
+    font-size: 20pt;
+    font-weight: bold;
+  }
+  .login-place {
+    border-radius: 20px;
+    padding: 20px;
+    background-color: $login-place-color;
+    height: 400px;
+    width: 500px;
+  }
+  .login-button {
+    /* font-family: 'Noto Serif', serif; */
+    /* font-weight: bold; */
+    width: 150px;
+    color: $font-color;
+    border:none;
+    background-color: $login-button-color;
+  }
+  .facebook-login-button {
+    /* font-family: 'Noto Serif', serif; */
+    /* font-weight: bold; */
+    width:200px;
+    color: $font-color;
+    border:none;
+    background-color: $facebook-button-color;
+  }
+}
+
+.login-button:hover {
+  background-color: #A3DE83;
+  color: #161C2E;
+}
+
+.facebook-login-button:hover {
+  background-color: #A6E4E7;
+  color: #161C2E;
+}
+
+.center {
+  text-align: center;
+}
+
+@keyframes page-color{
+  0% {background-color: $first-color;}
+  25% {background-color: $second-color;}
+  50% {background-color: $third-color;}
+  75% {background-color: $second-color;}
+  100% {background-color: $first-color;}
+}

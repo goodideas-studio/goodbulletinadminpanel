@@ -5,32 +5,37 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, La
 export default class Speech extends Component {
   constructor(props) {
     super(props);
-    const {speech} = this.props;
+    const { speech } = this.props;
     this.state = {
       updateModal: false,
       deleteModal: false,
       editSpeaker: speech.speaker,
       editTitle: speech.title,
       editMessage: speech.message,
-      editDate: speech.speech_date
+      editDate: speech.speech_date,
+      editClass: speech.class,
+      editClassImg: speech.class_img,
+      editUrl: speech.link,
     };
-
+    // console.log(`"editUrl: " ${this.state.editUrl}`);
     // console.log(`"first" ${this.state.editTitle}`);
 
     this.updateToggle = this.updateToggle.bind(this);
     this.deleteToggle = this.deleteToggle.bind(this);
 
-    this.handleSpeakerChange = this.handleSpeakerChange.bind(this);
-    this.handleTitleChange = this.handleTitleChange.bind(this);
-    this.handleMessageChange = this.handleMessageChange.bind(this);
-    this.handleDateChange = this.handleDateChange.bind(this);
+    this.handleChangeValue = this.handleChangeValue.bind(this);
   }
 
   static propTypes = {
     // GET method
+    id: PropTypes.string,
+    token: PropTypes.string,
     index: PropTypes.number,
     speech: PropTypes.object,
-    itemLoad: PropTypes.func
+    tokenLoad: PropTypes.func,
+    itemLoad: PropTypes.func,
+    itemClassLoad: PropTypes.func,
+    classItem: PropTypes.array
     // POST method
     // speaker: PropTypes.string,
     // speechDate: PropTypes.string,
@@ -43,43 +48,12 @@ export default class Speech extends Component {
     });
   }
 
-  handleSpeakerChange = (e) => {
-    // const {speech} = this.props;
-    // this.state = {
-    //   editSpeaker: speech.speaker
-    // };
-    this.setState({
-      editSpeaker: e.target.value
-    });
-  }
+  handleChangeValue = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
 
-  handleTitleChange = (e) => {
-    // const {speech} = this.props;
-    // this.state = {
-    //   editTitle: speech.title
-    // };
     this.setState({
-      editTitle: e.target.value
-    });
-  }
-
-  handleMessageChange = (e) => {
-    // const {speech} = this.props;
-    // this.state = {
-    //   editMessage: speech.message
-    // };
-    this.setState({
-      editMessage: e.target.value
-    });
-  }
-
-  handleDateChange = (e) => {
-    // const {speech} = this.props;
-    // this.state = {
-    //   editDate: speech.speech_date
-    // };
-    this.setState({
-      editDate: e.target.value
+      [name]: value
     });
   }
 
@@ -89,18 +63,38 @@ export default class Speech extends Component {
   }
 
   updateAction = async () => {
-    const { speech, itemLoad } = this.props;
-    await fetch('https://devche.com/api/speech', {
+    const { speech, tokenLoad, itemLoad, itemClassLoad, classItem } = this.props;
+    const classArray = classItem;
+    const chooseClass = this.state.editClass;
+    for (let i = 0; i < classArray.length; i += 1) {
+      // console.log(`chooseClass: ${chooseClass}, names: ${classArray[i].name}`);
+      if (classArray[i].name === chooseClass) {
+        await this.setState({
+          editClassImg: classArray[i].img_url
+        });
+      }
+    }
+    if (this.state.editUrl === "") {
+      await this.setState({
+        editUrl: ''
+      });
+    }
+    // await fetch(`https://devche.com/api/speech/?id=${this.props.id}`, {
+    await fetch(`http://localhost:8007/api/speech/?id=${this.props.id}`, {
       method: 'PUT',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'x-access-token': this.props.token
       },
       body: JSON.stringify({
         speaker: this.state.editSpeaker,
         title: this.state.editTitle,
         message: this.state.editMessage,
         speech_date: this.state.editDate,
-        create_date: speech.create_date
+        create_date: speech.create_date,
+        class: this.state.editClass,
+        class_img: this.state.editClassImg,
+        link: this.state.editUrl
       })
     }).then((response) => {
       // console.log(response);
@@ -111,7 +105,9 @@ export default class Speech extends Component {
     await this.setState({
       updateModal: !this.state.updateModal,
     });
+    await tokenLoad();
     await itemLoad();
+    await itemClassLoad();
   }
 
   deleteToggle() {
@@ -121,13 +117,15 @@ export default class Speech extends Component {
   }
 
   deleteAction = async () => {
-    const { speech, itemLoad } = this.props;
+    const { speech, tokenLoad, itemLoad, itemClassLoad } = this.props;
     // console.log(speech.create_date);
     // console.log(speech.speaker);
-    await fetch('https://devche.com/api/speech', {
+    // await fetch(`https://devche.com/api/speech/?id=${this.props.id}`, {
+    await fetch(`http://localhost:8007/api/speech/?id=${this.props.id}`, {
       method: 'DELETE',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'x-access-token': this.props.token
       },
       body: JSON.stringify({
         create_date: speech.create_date,
@@ -142,29 +140,48 @@ export default class Speech extends Component {
     await this.setState({
       deleteModal: !this.state.deleteModal,
     });
+    await tokenLoad();
     await itemLoad();
+    await itemClassLoad();
   }
 
   componentWillReceiveProps(nextProps) {
     // console.log(`"second" ${nextProps.speech.title}`);
     // console.log(nextProps.speech);
+    // console.log(`"this.props: " ${JSON.stringify(this.props)}`);
     this.setState({
       editSpeaker: nextProps.speech.speaker,
       editTitle: nextProps.speech.title,
       editMessage: nextProps.speech.message,
-      editDate: nextProps.speech.speech_date
+      editDate: nextProps.speech.speech_date,
+      editClass: nextProps.speech.class,
+      editClassImg: nextProps.speech.class_img,
+      editUrl: nextProps.speech.link
     });
   }
-
   render() {
-    const { speech, index } = this.props;
+    const { speech, index, classItem } = this.props;
+    const linkArea = () => {
+      const link = speech.link;
+      // console.log(link);
+
+      if (link !== '') {
+        return <td><a href={link} target="_new"><i className="fa fa-link" aria-hidden="true" />{''}</a></td>;
+      }
+      return <td />;
+    };
+    const classResult = classItem.map((classData, classIndex) => (
+      <option value={classData.name} key={classIndex}>{classData.name}</option>
+    ));
     return (
       <tbody>
         <tr>
           <th scope="row">{index}</th>
+          <td><img src={speech.class_img} alt="" height="20" width="20" /></td>
           <td>{speech.speech_date}</td>
           <td>{speech.title}</td>
           <td>{speech.speaker}</td>
+          {linkArea()}
           <td>
             <Button className="edit-button" onClick={this.updateToggle}><i className="fa fa-pencil" aria-hidden="true" /></Button>
             <Modal className="modal-space" isOpen={this.state.updateModal} toggle={this.updateToggle}>
@@ -173,19 +190,29 @@ export default class Speech extends Component {
                 <Form onSubmit={this.handleSubmit}>
                   <FormGroup>
                     <Label for="speechDatetime">演講時間</Label>
-                    <Input type="date" name="datetime" id="datetime" placeholder="datetime" onChange={this.handleDateChange} value={this.state.editDate} />
+                    <Input type="date" name="editDate" id="datetime" placeholder="datetime" onChange={this.handleChangeValue} value={this.state.editDate} />
                   </FormGroup>
                   <FormGroup>
                     <Label for="speechTitle">演講主題</Label>
-                    <Input type="title" name="title" id="title" placeholder="title" onChange={this.handleTitleChange} value={this.state.editTitle} />
+                    <Input type="title" name="editTitle" id="title" placeholder="title" onChange={this.handleChangeValue} value={this.state.editTitle} />
+                  </FormGroup>
+                  <FormGroup>
+                    <Label for="exampleSelect">主題分類</Label>
+                    <Input type="select" name="editClass" id="exampleSelect" onChange={this.handleChangeValue} value={this.state.editClass}>
+                      {classResult}
+                    </Input>
                   </FormGroup>
                   <FormGroup>
                     <Label for="speechName">講者</Label>
-                    <Input type="name" name="name" id="name" placeholder="name" onChange={this.handleSpeakerChange} value={this.state.editSpeaker} />
+                    <Input type="name" name="editSpeaker" id="name" placeholder="name" onChange={this.handleChangeValue} value={this.state.editSpeaker} />
                   </FormGroup>
                   <FormGroup>
                     <Label for="speechContent">演講內容</Label>
-                    <Input type="textarea" name="text" id="text" onChange={this.handleMessageChange} value={this.state.editMessage} />
+                    <Input type="textarea" name="editMessage" id="text" onChange={this.handleChangeValue} value={this.state.editMessage} />
+                  </FormGroup>
+                  <FormGroup>
+                    <Label for="speechUrl">相關連結</Label>
+                    <Input type="url" name="editUrl" id="URL" placeholder="URL" onChange={this.handleChangeValue} value={this.state.editUrl} />
                   </FormGroup>
                   <Button color="primary">修改</Button>{' '}
                   <Button color="secondary" onClick={this.updateToggle}>取消</Button>

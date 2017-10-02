@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 // import PropTypes from 'prop-types';
 import { Container, Row, Col, Table, Form, FormGroup, Modal, ModalHeader, ModalBody, Label, Input, Button } from 'reactstrap';
+import PropTypes from 'prop-types';
+import queryString from 'query-string';
 import Speech from './Speech';
+
 // import Cardboard from './Card-board';
 // import speechJson from './data.json';
 
@@ -10,6 +13,7 @@ export default class Content extends Component {
     super(props);
     this.state = {
       item: [],
+      classItem: [],
       createModal: false,
 
       speechDateValid: false,
@@ -18,15 +22,32 @@ export default class Content extends Component {
       speechMessageValid: false,
       formValid: false,
 
+      token: '',
+
+      speechID: '',
       speechDate: '',
       speechTitle: '',
       speechSpeaker: '',
-      speechMessage: ''
+      speechMessage: '',
+      // class初始值
+      speechClass: 'backend-end',
+      speechClassImg: '',
+      speechUrl: ''
     };
 
     this.createToggle = this.createToggle.bind(this);
 
     this.handleValueChange = this.handleValueChange.bind(this);
+  }
+
+  static propTypes = {
+    location: PropTypes.object,
+  };
+
+  getID = () => {
+    this.setState({
+      speechID: queryString.parse(this.props.location.search).id
+    });
   }
 
   createToggle() {
@@ -38,6 +59,7 @@ export default class Content extends Component {
   handleValueChange = (e) => {
     const name = e.target.name;
     const value = e.target.value;
+    // console.log(`name: ${name}, value: ${value}`);
     this.setState({
       [name]: value
     }, () => { this.vailDateField(name, value); });
@@ -49,21 +71,18 @@ export default class Content extends Component {
     let speakerValid = this.state.speechSpeakerValid;
     let messageValid = this.state.speechMessageValid;
 
-    // console.log(value);
-    // console.log(`onde: ${dateValid}`);
-
     switch (fieldName) {
       case 'speechDate':
-        dateValid = value !== null;
+        dateValid = value !== null || "";
         break;
       case 'speechTitle':
-        titleValid = value !== null;
+        titleValid = value !== null || "";
         break;
       case 'speechSpeaker':
-        speakerValid = value !== null;
+        speakerValid = value !== null || "";
         break;
       case 'speechMessage':
-        messageValid = value !== null;
+        messageValid = value !== null || "";
         break;
       default:
         break;
@@ -88,8 +107,9 @@ export default class Content extends Component {
     this.serverItemCreate();
   }
 
-  serverItemLoad = () => {
-    fetch('https://devche.com/api/speech', {
+  getToken = () => {
+    // fetch(`https://devche.com/api/speechmember/login/redirect/?id=${this.state.speechID}`, {
+    fetch(`http://localhost:8007/api/speechmember/login/redirect/?id=${this.state.speechID}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -97,9 +117,35 @@ export default class Content extends Component {
     })
       .then((response) => {
         if (!response.ok) throw new Error(response.statusText);
+        this.setState({
+          token: response.headers.get('x-access-token')
+        });
+        // console.log(`x-access-token: ${this.state.token}`);
+        return response;
+      })
+      .catch(err => err);
+  }
+
+  serverItemLoad = () => {
+    // fetch(`https://devche.com/api/speech/?id=${this.state.speechID}`, {
+    fetch(`http://localhost:8007/api/speech/?id=${this.state.speechID}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-access-token': this.state.token
+      },
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error(response.statusText);
         return response.json().then((data) => {
           // 依造日期排序
           const dataSorting = data.result.sort((a, b) => new Date(b.speech_date) - new Date(a.speech_date));
+          dataSorting.forEach((element) => {
+            if (element.link === "null" || element.link === null) {
+              element.link = "";
+            }
+          });
+          // console.log(JSON.stringify(dataSorting));
           this.setState({
             item: dataSorting
           });
@@ -110,16 +156,42 @@ export default class Content extends Component {
 
   serverItemCreate = async () => {
     // console.log(this.state.speechMessage);
-    await fetch('https://devche.com/api/speech', {
+
+    const classArray = this.state.classItem;
+    const chooseClass = this.state.speechClass;
+    for (let i = 0; i < classArray.length; i += 1) {
+      // console.log(`chooseClass: ${chooseClass}, names: ${classArray[i].name}`);
+      if (classArray[i].name === chooseClass) {
+        await this.setState({
+          speechClassImg: classArray[i].img_url
+        });
+      }
+    }
+    // console.log(`speechUrl: ${this.state.speechUrl}`);
+    if (this.state.speechUrl === "" || this.state.speechUrl === null) {
+      await this.setState({
+        speechUrl: ''
+      });
+    }
+    // console.log(`url: ${this.state.speechUrl}`);
+
+    // console.log(`token: ${this.state.token}`);
+    // console.log(this.state.speechClassImg);
+    // await fetch(`https://devche.com/api/speech/?id=${this.state.speechID}`, {
+    await fetch(`http://localhost:8007/api/speech/?id=${this.state.speechID}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'x-access-token': this.state.token
       },
       body: JSON.stringify({
         speech_date: this.state.speechDate,
         title: this.state.speechTitle,
         speaker: this.state.speechSpeaker,
-        message: this.state.speechMessage
+        message: this.state.speechMessage,
+        link: this.state.speechUrl,
+        class: this.state.speechClass,
+        class_img: this.state.speechClassImg
       })
     })
       .then((response) => {
@@ -130,30 +202,77 @@ export default class Content extends Component {
       .catch(err => err);
     await this.setState({
       createModal: !this.state.createModal,
-    });
-    // create filed 初始化
-    this.state = {
+      // create filed 初始化
       speechDate: '',
       speechTitle: '',
       speechSpeaker: '',
-      speechMessage: ''
-    };
+      speechMessage: '',
+      speechClass: 'backend-end',
+      speechClassImg: '',
+      speechUrl: ''
+    });
+
+    await this.getToken();
     await this.serverItemLoad();
+    await this.getClassItem();
   }
 
-  componentDidMount() {
-    this.serverItemLoad();
+  getClassItem = () => {
+    // console.log(`id: ${this.state.speechID}`);
+    // fetch(`https://devche.com/api/speechclass/?id=${this.state.speechID}`, {
+    fetch(`http://localhost:8007/api/speechclass/?id=${this.state.speechID}`, {
+      Method: "GET",
+      headers: {
+        'Content-Type': 'application/json',
+        'x-access-token': this.state.token
+      },
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error(response.statusText);
+        return response.json().then((classData) => {
+          this.setState({
+            classItem: classData.result
+          });
+        });
+      })
+      .catch(err => err);
   }
+
+  componentWillMount() {
+    this.getID();
+  }
+
+  async componentDidMount() {
+    await this.getToken();
+    this.serverItemLoad();
+    this.getClassItem();
+  }
+
+  // componentWillReceiveProps(nextProps) {
+  //   this.setState({
+  //     speechID: queryString.parse(nextProps.location.search).id
+  //   });
+  // }
+
 
   render() {
     // console.log(JSON.stringify(this.state.item));
+    // console.log(this.state.classItem);
     const result = this.state.item.map((speech, index) => (
       <Speech
+        id={this.state.id}
+        token={this.state.token}
+        tokenLoad={this.getToken}
         itemLoad={this.serverItemLoad}
+        itemClassLoad={this.getClassItem}
+        classItem={this.state.classItem}
         index={index + 1}
         key={index}
         speech={speech}
       />
+    ));
+    const classResult = this.state.classItem.map((classData, index) => (
+      <option value={classData.name} key={index}>{classData.name}</option>
     ));
     // this.state.speechData = "2017-08-20";
     return (
@@ -239,12 +358,22 @@ export default class Content extends Component {
                         <Input type="title" name="speechTitle" id="title" placeholder="title" onChange={this.handleValueChange} value={this.state.speechTitle} />
                       </FormGroup>
                       <FormGroup>
+                        <Label for="exampleSelect">主題分類</Label>
+                        <Input type="select" name="speechClass" id="exampleSelect" onChange={this.handleValueChange} value={this.state.speechClass}>
+                          {classResult}
+                        </Input>
+                      </FormGroup>
+                      <FormGroup>
                         <Label for="speechName">講者</Label>
                         <Input type="name" name="speechSpeaker" id="name" placeholder="name" onChange={this.handleValueChange} value={this.state.speechSpeaker} />
                       </FormGroup>
                       <FormGroup>
                         <Label for="speechContent">演講內容</Label>
                         <Input type="textarea" name="speechMessage" id="text" onChange={this.handleValueChange} value={this.state.speechMessage} />
+                      </FormGroup>
+                      <FormGroup>
+                        <Label for="speechUrl">相關連結</Label>
+                        <Input type="url" name="speechUrl" id="URL" placeholder="URL" onChange={this.handleValueChange} value={this.state.speechUrl} />
                       </FormGroup>
                       <Button color="primary" disabled={!this.state.formValid}>建立</Button>{' '}
                       <Button color="secondary" onClick={this.createToggle}>取消</Button>
@@ -258,6 +387,7 @@ export default class Content extends Component {
                       <thead>
                         <tr>
                           <th>#</th>
+                          <th>分類</th>
                           <th>時間</th>
                           <th>主題</th>
                           <th>講者</th>
