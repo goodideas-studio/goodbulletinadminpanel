@@ -2,10 +2,9 @@ import React, { Component } from 'react';
 // import PropTypes from 'prop-types';
 import { Container, Row, Col, Table, Form, FormGroup, Modal, ModalHeader, ModalBody, Label, Input, Button } from 'reactstrap';
 import PropTypes from 'prop-types';
-import queryString from 'query-string';
 import Speech from './Speech';
 
-// import Cardboard from './Card-board';
+import Cardboard from './Card-board';
 // import speechJson from './data.json';
 
 export default class Content extends Component {
@@ -14,6 +13,7 @@ export default class Content extends Component {
     this.state = {
       item: [],
       classItem: [],
+      memberItem: [],
       createModal: false,
 
       speechDateValid: false,
@@ -22,9 +22,6 @@ export default class Content extends Component {
       speechMessageValid: false,
       formValid: false,
 
-      token: '',
-
-      speechID: '',
       speechDate: '',
       speechTitle: '',
       speechSpeaker: '',
@@ -41,14 +38,9 @@ export default class Content extends Component {
   }
 
   static propTypes = {
-    location: PropTypes.object,
+    id: PropTypes.string,
+    token: PropTypes.string,
   };
-
-  getID = () => {
-    this.setState({
-      speechID: queryString.parse(this.props.location.search).id
-    });
-  }
 
   createToggle() {
     this.setState({
@@ -68,7 +60,7 @@ export default class Content extends Component {
   vailDateField(fieldName, value) {
     let dateValid = this.state.speechDateValid;
     let titleValid = this.state.speechTitleValid;
-    let speakerValid = this.state.speechSpeakerValid;
+    // let speakerValid = this.state.speechSpeakerValid;
     let messageValid = this.state.speechMessageValid;
 
     switch (fieldName) {
@@ -78,9 +70,9 @@ export default class Content extends Component {
       case 'speechTitle':
         titleValid = value !== null || "";
         break;
-      case 'speechSpeaker':
-        speakerValid = value !== null || "";
-        break;
+      // case 'speechSpeaker':
+      //   speakerValid = value !== null || "";
+      //   break;
       case 'speechMessage':
         messageValid = value !== null || "";
         break;
@@ -91,14 +83,14 @@ export default class Content extends Component {
     this.setState({
       speechDateValid: dateValid,
       speechTitleValid: titleValid,
-      speechSpeakerValid: speakerValid,
+      // speechSpeakerValid: speakerValid,
       speechMessageValid: messageValid
     }, this.valiForm);
   }
 
   valiForm() {
     this.setState({
-      formValid: this.state.speechDateValid && this.state.speechTitleValid && this.state.speechSpeakerValid && this.state.speechMessageValid
+      formValid: this.state.speechDateValid && this.state.speechTitleValid && this.state.speechMessageValid
     });
   }
 
@@ -107,33 +99,15 @@ export default class Content extends Component {
     this.serverItemCreate();
   }
 
-  getToken = () => {
-    // fetch(`https://devche.com/api/speechmember/login/redirect/?id=${this.state.speechID}`, {
-    fetch(`http://localhost:8007/api/speechmember/login/redirect/?id=${this.state.speechID}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error(response.statusText);
-        this.setState({
-          token: response.headers.get('x-access-token')
-        });
-        // console.log(`x-access-token: ${this.state.token}`);
-        return response;
-      })
-      .catch(err => err);
-  }
-
   serverItemLoad = () => {
-    // fetch(`https://devche.com/api/speech/?id=${this.state.speechID}`, {
-    fetch(`http://localhost:8007/api/speech/?id=${this.state.speechID}`, {
+    fetch(`https://devche.com/api/speech/?id=${this.props.id}`, {
+    // fetch(`http://localhost:8007/api/speech/?id=${this.props.id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'x-access-token': this.state.token
+        'x-access-token': this.props.token
       },
+      // credentials: 'include'
     })
       .then((response) => {
         if (!response.ok) throw new Error(response.statusText);
@@ -146,9 +120,11 @@ export default class Content extends Component {
             }
           });
           // console.log(JSON.stringify(dataSorting));
-          this.setState({
-            item: dataSorting
-          });
+          if (this._isMounted) {
+            this.setState({
+              item: dataSorting
+            });
+          }
         });
       })
       .catch(err => err);
@@ -173,21 +149,23 @@ export default class Content extends Component {
         speechUrl: ''
       });
     }
-    // console.log(`url: ${this.state.speechUrl}`);
 
-    // console.log(`token: ${this.state.token}`);
-    // console.log(this.state.speechClassImg);
-    // await fetch(`https://devche.com/api/speech/?id=${this.state.speechID}`, {
-    await fetch(`http://localhost:8007/api/speech/?id=${this.state.speechID}`, {
+    await fetch(`https://devche.com/api/speech/?id=${this.props.id}`, {
+    // await fetch(`http://localhost:8007/api/speech/?id=${this.props.id}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-access-token': this.state.token
+        'x-access-token': this.props.token
       },
       body: JSON.stringify({
         speech_date: this.state.speechDate,
+        id: this.props.id,
         title: this.state.speechTitle,
-        speaker: this.state.speechSpeaker,
+
+        // 默認方式輸入speaker跟speaker_img
+        speaker: this.state.memberItem.displayName,
+        speaker_img: this.state.memberItem.photos,
+
         message: this.state.speechMessage,
         link: this.state.speechUrl,
         class: this.state.speechClass,
@@ -212,57 +190,82 @@ export default class Content extends Component {
       speechUrl: ''
     });
 
-    await this.getToken();
     await this.serverItemLoad();
     await this.getClassItem();
   }
 
-  getClassItem = () => {
-    // console.log(`id: ${this.state.speechID}`);
-    // fetch(`https://devche.com/api/speechclass/?id=${this.state.speechID}`, {
-    fetch(`http://localhost:8007/api/speechclass/?id=${this.state.speechID}`, {
-      Method: "GET",
+  getMemberItem = () => {
+    fetch(`https://devche.com/api/speechmember/?id=${this.props.id}`, {
+    // fetch(`http://localhost:8007/api/speechmember/?id=${this.props.id}`, {
       headers: {
         'Content-Type': 'application/json',
-        'x-access-token': this.state.token
+        'x-access-token': this.props.token
       },
+      // credentials: 'include'
     })
       .then((response) => {
         if (!response.ok) throw new Error(response.statusText);
-        return response.json().then((classData) => {
-          this.setState({
-            classItem: classData.result
-          });
+        return response.json().then((memberData) => {
+          if (this._isMounted) {
+            this.setState({
+              memberItem: memberData.result
+            });
+          }
+          // console.log(`memberData second: ${JSON.stringify(this.state.memberItem)}`);
         });
       })
       .catch(err => err);
   }
 
-  componentWillMount() {
-    this.getID();
+  getClassItem = () => {
+    fetch(`https://devche.com/api/speechclass/?id=${this.props.id}`, {
+    // fetch(`http://localhost:8007/api/speechclass/?id=${this.props.id}`, {
+      Method: "GET",
+      headers: {
+        'Content-Type': 'application/json',
+        'x-access-token': this.props.token
+      },
+      // credentials: 'include'
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error(response.statusText);
+        return response.json().then((classData) => {
+          if (this._isMounted) {
+            this.setState({
+              memberItem: classData.result
+            });
+          }
+        });
+      })
+      .catch(err => err);
   }
 
-  async componentDidMount() {
-    await this.getToken();
+  componentDidMount() {
+    this._isMounted = true;
+    this.getMemberItem();
     this.serverItemLoad();
     this.getClassItem();
   }
 
-  // componentWillReceiveProps(nextProps) {
-  //   this.setState({
-  //     speechID: queryString.parse(nextProps.location.search).id
-  //   });
-  // }
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
 
+  shouldComponentUpdate() {
+    // console.log(`token: ${this.props.token}`);
+    if (this.props.token === "null") {
+      window.location.href = ("https://devche.com/#/");
+      // window.location.href = ("http://localhost:8000/#/");
+      return false;
+    }
+    return true;
+  }
 
   render() {
-    // console.log(JSON.stringify(this.state.item));
-    // console.log(this.state.classItem);
     const result = this.state.item.map((speech, index) => (
       <Speech
-        id={this.state.id}
-        token={this.state.token}
-        tokenLoad={this.getToken}
+        id={this.props.id}
+        token={this.props.token}
         itemLoad={this.serverItemLoad}
         itemClassLoad={this.getClassItem}
         classItem={this.state.classItem}
@@ -274,7 +277,38 @@ export default class Content extends Component {
     const classResult = this.state.classItem.map((classData, index) => (
       <option value={classData.name} key={index}>{classData.name}</option>
     ));
-    // this.state.speechData = "2017-08-20";
+    // const memberIndex = () => this.state.memberItem.length;
+    const memberIndex = () => {
+      if (typeof this.state.memberItem === 'object') {
+        return 1;
+      }
+      return this.state.memberItem.length;
+    };
+    // console.log(`member: ${JSON.stringify(this.state.memberItem)}`);
+    const speechIndex = () => this.state.item.length;
+
+    const beforeSpeechIndex = () => {
+      let i = 0;
+      this.state.item.forEach((speech) => {
+        const now = new Date();
+        if (now > new Date(speech.speech_date)) {
+          i += 1;
+        }
+      });
+      return i;
+    };
+
+    const afterSpeechIndex = () => {
+      let j = 0;
+      this.state.item.forEach((speech) => {
+        const now = new Date();
+        if (now <= new Date(speech.speech_date)) {
+          j += 1;
+        }
+      });
+      return j;
+    };
+
     return (
       <content>
         <Container>
@@ -307,46 +341,46 @@ export default class Content extends Component {
           </Col> */}
             <Col xs="12" md="12" sm="12" className="padding-0 right-color right-col">
               <div className="right-content">
-                {/* <div className="main-title">Main Title.</div>
-              <div className="card-packge">
-                <Row>
-                  <Col xs="12" sm="3" className="card-col">
-                    <Cardboard
-                      icon="fa fa-user-circle fa-3x icon"
-                      title="演講人數"
-                      content={2}
-                    />
-                  </Col>
-                  <Col xs="12" sm="3" className="card-col">
-                    <Cardboard
-                      icon="fa fa-info-circle fa-3x icon"
-                      title="演講活動數"
-                      content={5}
-                    />
-                  </Col>
-                  <Col xs="12" sm="3" className="card-col">
-                    <Cardboard
-                      icon="fa fa-question-circle fa-3x icon"
-                      title="未完成演講"
-                      content={5}
-                    />
-                  </Col>
-                  <Col xs="12" sm="3" className="card-col">
-                    <Cardboard
-                      icon="fa fa-check-circle fa-3x icon"
-                      title="已完成演講"
-                      content={3}
-                    />
-                  </Col>
-                </Row>
-              </div>
-              <hr /> */}
+                {/* <div className="main-title">Main Title.</div> */}
+                <div className="card-packge">
+                  <Row>
+                    <Col xs="12" sm="3" className="card-col">
+                      <Cardboard
+                        icon="fa fa-user-circle fa-3x icon"
+                        title="演講人數"
+                        content={memberIndex()}
+                      />
+                    </Col>
+                    <Col xs="12" sm="3" className="card-col">
+                      <Cardboard
+                        icon="fa fa-info-circle fa-3x icon"
+                        title="演講活動數"
+                        content={speechIndex()}
+                      />
+                    </Col>
+                    <Col xs="12" sm="3" className="card-col">
+                      <Cardboard
+                        icon="fa fa-question-circle fa-3x icon"
+                        title="未完成演講"
+                        content={afterSpeechIndex()}
+                      />
+                    </Col>
+                    <Col xs="12" sm="3" className="card-col">
+                      <Cardboard
+                        icon="fa fa-check-circle fa-3x icon"
+                        title="已完成演講"
+                        content={beforeSpeechIndex()}
+                      />
+                    </Col>
+                  </Row>
+                </div>
+                {/* <hr /> */}
                 <div className="section-title">
                   演講活動資料
                     </div>
                 <Button className="create-button" onClick={this.createToggle}><i className="fa fa-plus" aria-hidden="true" /></Button>
                 <Modal className="modal-space" isOpen={this.state.createModal} toggle={this.createModal}>
-                  <ModalHeader toggle={this.createModal}>建立活動</ModalHeader>
+                  <ModalHeader toggle={this.createModal}>我要分享</ModalHeader>
                   <ModalBody>
                     <Form onSubmit={this.handleSubmit}>
                       <FormGroup>
@@ -363,10 +397,10 @@ export default class Content extends Component {
                           {classResult}
                         </Input>
                       </FormGroup>
-                      <FormGroup>
+                      {/* <FormGroup>
                         <Label for="speechName">講者</Label>
                         <Input type="name" name="speechSpeaker" id="name" placeholder="name" onChange={this.handleValueChange} value={this.state.speechSpeaker} />
-                      </FormGroup>
+                      </FormGroup> */}
                       <FormGroup>
                         <Label for="speechContent">演講內容</Label>
                         <Input type="textarea" name="speechMessage" id="text" onChange={this.handleValueChange} value={this.state.speechMessage} />
@@ -383,7 +417,7 @@ export default class Content extends Component {
                 <Row>
                   {/* <Col xs="12" sm="8" lg="7"> */}
                   <Col xs="12" sm="12" lg="12">
-                    <Table hover className="table-message">
+                    <Table hover className="speech-td table-message">
                       <thead>
                         <tr>
                           <th>#</th>

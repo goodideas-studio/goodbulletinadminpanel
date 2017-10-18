@@ -21,7 +21,6 @@ import NotFound from './NotFound';
 //   )
 // }
 
-
 const Main = () => (
   <Router>
     <Switch>

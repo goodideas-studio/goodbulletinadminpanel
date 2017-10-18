@@ -1,5 +1,7 @@
 $top-color: #52524E;
 $font-color: #D4D6C8;
+$displayname-place-color: #52524E;
+$displayname-color: #D4D6C8;
 
 header {
   position: fixed;
@@ -13,6 +15,21 @@ header {
     color: $font-color;
     font-size: 16pt;
   }
+}
+
+.displayname {
+  border-style: none;
+  color: $displayname-color;
+  background-color: $displayname-place-color;
+}
+
+.button-font {
+  font-size: 12pt;
+}
+
+.pic-size {
+  width:25px;
+  height:25px;
 }
 
 /* .hi {

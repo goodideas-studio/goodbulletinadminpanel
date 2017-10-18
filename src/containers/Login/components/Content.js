@@ -11,8 +11,8 @@ export default class Login extends Component {
   }
 
   loginFun = () => {
-    // location.href = "https://devche.com/api/speechmember/login/facebook";
-    location.href = "http://localhost:8007/api/speechmember/login/facebook";
+    location.href = "https://devche.com/api/speechmember/login/facebook";
+    // location.href = "http://localhost:8007/api/speechmember/login/facebook";
   }
 
   render() {
@@ -30,11 +30,11 @@ export default class Login extends Component {
             <Form>
               <FormGroup>
                 <Label for="exampleAccount">Account</Label>
-                <Input type="text" name="account" id="exampleAccount" placeholder="Account placeholder" />
+                <Input type="text" name="account" id="exampleAccount" placeholder="enter account" />
               </FormGroup>
               <FormGroup>
                 <Label for="examplePassword">Password</Label>
-                <Input type="password" name="password" id="examplePassword" placeholder="password placeholder" />
+                <Input type="password" name="password" id="examplePassword" placeholder="enter password" />
               </FormGroup>
               <div className="center">
                 <Button className="login-button">Submit</Button>

@@ -162,11 +162,23 @@ hr {
   }
 }
 
+/* speech component */
+
 .modal-space{
   margin-top:100px;
 }
 
+.speech-td {
+  font-size: 12pt;
+}
+
+.circle {
+  border-radius: 50%;
+}
+
 .create-button{
+  width: 25px;
+  height: 30px;
   color: $button-color;
   background-color: $create-button-color;
 }
@@ -176,9 +188,17 @@ hr {
   background-color: $edit-button-color;
 }
 
+.edit-button:disabled {
+  display: none;
+}
+
 .delete-button{
   color: $button-color;
   background-color: $delete-button-color;
+}
+
+.delete-button:disabled {
+  display: none;
 }
 
 .main-title{

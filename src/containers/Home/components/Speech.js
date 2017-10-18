@@ -9,7 +9,9 @@ export default class Speech extends Component {
     this.state = {
       updateModal: false,
       deleteModal: false,
+      editSpeakerID: speech.id,
       editSpeaker: speech.speaker,
+      editSpeakerImg: speech.speaker_img,
       editTitle: speech.title,
       editMessage: speech.message,
       editDate: speech.speech_date,
@@ -32,7 +34,6 @@ export default class Speech extends Component {
     token: PropTypes.string,
     index: PropTypes.number,
     speech: PropTypes.object,
-    tokenLoad: PropTypes.func,
     itemLoad: PropTypes.func,
     itemClassLoad: PropTypes.func,
     classItem: PropTypes.array
@@ -63,7 +64,7 @@ export default class Speech extends Component {
   }
 
   updateAction = async () => {
-    const { speech, tokenLoad, itemLoad, itemClassLoad, classItem } = this.props;
+    const { speech, itemLoad, itemClassLoad, classItem } = this.props;
     const classArray = classItem;
     const chooseClass = this.state.editClass;
     for (let i = 0; i < classArray.length; i += 1) {
@@ -79,15 +80,17 @@ export default class Speech extends Component {
         editUrl: ''
       });
     }
-    // await fetch(`https://devche.com/api/speech/?id=${this.props.id}`, {
-    await fetch(`http://localhost:8007/api/speech/?id=${this.props.id}`, {
+    await fetch(`https://devche.com/api/speech/?id=${this.props.id}`, {
+    // await fetch(`http://localhost:8007/api/speech/?id=${this.props.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         'x-access-token': this.props.token
       },
       body: JSON.stringify({
+        speaker_id: this.state.editSpeakerID,
         speaker: this.state.editSpeaker,
+        speaker_img: this.state.editSpeakerImg,
         title: this.state.editTitle,
         message: this.state.editMessage,
         speech_date: this.state.editDate,
@@ -105,7 +108,6 @@ export default class Speech extends Component {
     await this.setState({
       updateModal: !this.state.updateModal,
     });
-    await tokenLoad();
     await itemLoad();
     await itemClassLoad();
   }
@@ -117,11 +119,9 @@ export default class Speech extends Component {
   }
 
   deleteAction = async () => {
-    const { speech, tokenLoad, itemLoad, itemClassLoad } = this.props;
-    // console.log(speech.create_date);
-    // console.log(speech.speaker);
-    // await fetch(`https://devche.com/api/speech/?id=${this.props.id}`, {
-    await fetch(`http://localhost:8007/api/speech/?id=${this.props.id}`, {
+    const { speech, itemLoad, itemClassLoad } = this.props;
+    await fetch(`https://devche.com/api/speech/?id=${this.props.id}`, {
+    // await fetch(`http://localhost:8007/api/speech/?id=${this.props.id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -140,7 +140,6 @@ export default class Speech extends Component {
     await this.setState({
       deleteModal: !this.state.deleteModal,
     });
-    await tokenLoad();
     await itemLoad();
     await itemClassLoad();
   }
@@ -150,7 +149,9 @@ export default class Speech extends Component {
     // console.log(nextProps.speech);
     // console.log(`"this.props: " ${JSON.stringify(this.props)}`);
     this.setState({
+      editSpeakerID: nextProps.speech.id,
       editSpeaker: nextProps.speech.speaker,
+      editSpeakerImg: nextProps.speech.speaker_img,
       editTitle: nextProps.speech.title,
       editMessage: nextProps.speech.message,
       editDate: nextProps.speech.speech_date,
@@ -161,6 +162,7 @@ export default class Speech extends Component {
   }
   render() {
     const { speech, index, classItem } = this.props;
+    // 判斷link是否為空值，若為空值則不顯示link icon.
     const linkArea = () => {
       const link = speech.link;
       // console.log(link);
@@ -170,20 +172,34 @@ export default class Speech extends Component {
       }
       return <td />;
     };
+
+    // 將分類資料全部藉由class api所取得的資料來匯入option
     const classResult = classItem.map((classData, classIndex) => (
       <option value={classData.name} key={classIndex}>{classData.name}</option>
     ));
+
+    // 判斷api id與query id是否相符合
+    const checkID = () => {
+      const apiID = this.props.speech.id;
+      const queryID = this.props.id;
+      // console.log(`apiID: ${apiID}`);
+      // console.log(`queryID: ${queryID}`);
+      if (queryID === apiID) {
+        return false;
+      }
+        return true;
+    };
     return (
       <tbody>
         <tr>
           <th scope="row">{index}</th>
-          <td><img src={speech.class_img} alt="" height="20" width="20" /></td>
+          <td><img src={speech.class_img} alt="" height="25" width="25" title={speech.class}/></td>
           <td>{speech.speech_date}</td>
           <td>{speech.title}</td>
-          <td>{speech.speaker}</td>
+          <td><img className="circle" src={speech.speaker_img} alt="" height="25" width="25" title={speech.speaker} /></td>
           {linkArea()}
           <td>
-            <Button className="edit-button" onClick={this.updateToggle}><i className="fa fa-pencil" aria-hidden="true" /></Button>
+            <Button className="edit-button" disabled={checkID()} onClick={this.updateToggle}><i className="fa fa-pencil" aria-hidden="true" /></Button>
             <Modal className="modal-space" isOpen={this.state.updateModal} toggle={this.updateToggle}>
               <ModalHeader toggle={this.updateToggle}>修改活動內容</ModalHeader>
               <ModalBody>
@@ -202,10 +218,10 @@ export default class Speech extends Component {
                       {classResult}
                     </Input>
                   </FormGroup>
-                  <FormGroup>
+                  {/* <FormGroup>
                     <Label for="speechName">講者</Label>
                     <Input type="name" name="editSpeaker" id="name" placeholder="name" onChange={this.handleChangeValue} value={this.state.editSpeaker} />
-                  </FormGroup>
+                  </FormGroup> */}
                   <FormGroup>
                     <Label for="speechContent">演講內容</Label>
                     <Input type="textarea" name="editMessage" id="text" onChange={this.handleChangeValue} value={this.state.editMessage} />
@@ -220,7 +236,7 @@ export default class Speech extends Component {
               </ModalBody>
             </Modal>
             {' '}
-            <Button className="delete-button" onClick={this.deleteToggle}><i className="fa fa-times" aria-hidden="true" /></Button>
+            <Button className="delete-button" disabled={checkID()} onClick={this.deleteToggle}><i className="fa fa-times" aria-hidden="true" /></Button>
             <Modal className="modal-space" isOpen={this.state.deleteModal} toggle={this.deleteToggle}>
               <ModalHeader toggle={this.deleteToggle}>刪除活動</ModalHeader>
               <ModalBody>
