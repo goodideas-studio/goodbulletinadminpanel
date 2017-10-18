@@ -56,7 +56,7 @@ export default class Header extends Component {
 
   doLogOut = () => {
     fetch(`https://devche.com/api/speechmember/logout/?id=${this.props.id}`, {
-    fetch(`http://localhost:8007/api/speechmember/logout/?id=${this.props.id}`, {
+    // fetch(`http://localhost:8007/api/speechmember/logout/?id=${this.props.id}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
