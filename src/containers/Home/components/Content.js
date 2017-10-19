@@ -232,7 +232,7 @@ export default class Content extends Component {
         return response.json().then((classData) => {
           if (this._isMounted) {
             this.setState({
-              memberItem: classData.result
+              classItem: classData.result
             });
           }
         });
