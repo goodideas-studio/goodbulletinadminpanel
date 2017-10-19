@@ -177,8 +177,6 @@ hr {
 }
 
 .create-button{
-  width: 25px;
-  height: 30px;
   color: $button-color;
   background-color: $create-button-color;
 }
