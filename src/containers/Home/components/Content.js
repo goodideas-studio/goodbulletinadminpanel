@@ -101,7 +101,7 @@ export default class Content extends Component {
 
   serverItemLoad = () => {
     fetch(`https://devche.com/api/speech/?id=${this.props.id}`, {
-    // fetch(`http://localhost:8007/api/speech/?id=${this.props.id}`, {
+      // fetch(`http://localhost:8007/api/speech/?id=${this.props.id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -151,7 +151,7 @@ export default class Content extends Component {
     }
 
     await fetch(`https://devche.com/api/speech/?id=${this.props.id}`, {
-    // await fetch(`http://localhost:8007/api/speech/?id=${this.props.id}`, {
+      // await fetch(`http://localhost:8007/api/speech/?id=${this.props.id}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -196,7 +196,7 @@ export default class Content extends Component {
 
   getMemberItem = () => {
     fetch(`https://devche.com/api/speechmember/?id=${this.props.id}`, {
-    // fetch(`http://localhost:8007/api/speechmember/?id=${this.props.id}`, {
+      // fetch(`http://localhost:8007/api/speechmember/?id=${this.props.id}`, {
       headers: {
         'Content-Type': 'application/json',
         'x-access-token': this.props.token
@@ -219,7 +219,7 @@ export default class Content extends Component {
 
   getClassItem = () => {
     fetch(`https://devche.com/api/speechclass/?id=${this.props.id}`, {
-    // fetch(`http://localhost:8007/api/speechclass/?id=${this.props.id}`, {
+      // fetch(`http://localhost:8007/api/speechclass/?id=${this.props.id}`, {
       Method: "GET",
       headers: {
         'Content-Type': 'application/json',
@@ -279,10 +279,11 @@ export default class Content extends Component {
     ));
     // const memberIndex = () => this.state.memberItem.length;
     const memberIndex = () => {
-      if (typeof this.state.memberItem === 'object') {
-        return 1;
-      }
-      return this.state.memberItem.length;
+      const memberArray = [];
+      this.state.item.forEach((element) => {
+        memberArray.push(element.id);
+      });
+      return memberArray.filter((element, index, arr) => arr.indexOf(element) === index).length;
     };
     // console.log(`member: ${JSON.stringify(this.state.memberItem)}`);
     const speechIndex = () => this.state.item.length;
