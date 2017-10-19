@@ -31,8 +31,8 @@ export default class Home extends Component {
   }
 
   getToken = () => {
-    // fetch(`https://devche.com/api/speechmember/login/redirect/?id=${this.state.speechID}`, {
-    fetch(`http://localhost:8007/api/speechmember/login/redirect/?id=${this.state.speechID}`, {
+    fetch(`https://devche.com/api/speechmember/login/redirect/?id=${this.state.speechID}`, {
+    // fetch(`http://localhost:8007/api/speechmember/login/redirect/?id=${this.state.speechID}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
