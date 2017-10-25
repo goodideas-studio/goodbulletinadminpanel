@@ -65,7 +65,7 @@ export default class Header extends Component {
       .then((response) => {
         if (!response.ok) throw new Error(response.statusText);
       });
-    window.location.href = ("https://devche.com/#/");
+    window.location.href = ("https://devche.com/goodideabillboard/#/");
     // window.location.href = ("http://localhost:8000/#/");
   }
 
@@ -80,7 +80,7 @@ export default class Header extends Component {
 
   shouldComponentUpdate() {
     if (this.state.token === "null") {
-      window.location.href = ("https://devche.com/#/");
+      window.location.href = ("https://devche.com/goodideabillboard/#/backstage/#/");
       // window.location.href = ("http://localhost:8000/#/");
       return false;
     }
