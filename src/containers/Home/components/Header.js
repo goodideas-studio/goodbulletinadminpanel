@@ -80,7 +80,7 @@ export default class Header extends Component {
 
   shouldComponentUpdate() {
     if (this.state.token === "null") {
-      window.location.href = ("https://devche.com/goodideabillboard/#/backstage/#/");
+      window.location.href = ("https://devche.com/goodideabillboard/backstage/#/");
       // window.location.href = ("http://localhost:8000/#/");
       return false;
     }

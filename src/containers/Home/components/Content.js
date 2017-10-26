@@ -254,7 +254,7 @@ export default class Content extends Component {
   shouldComponentUpdate() {
     // console.log(`token: ${this.props.token}`);
     if (this.props.token === "null") {
-      window.location.href = ("https://devche.com/goodideabillboard/#/backstage/#/");
+      window.location.href = ("https://devche.com/goodideabillboard/backstage/#/");
       // window.location.href = ("http://localhost:8000/#/");
       return false;
     }
