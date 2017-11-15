@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input } from 'reactstrap';
+
 
 export default class Speech extends Component {
   constructor(props) {
@@ -81,7 +83,7 @@ export default class Speech extends Component {
       });
     }
     await fetch(`https://devche.com/api/speech/?id=${this.props.id}`, {
-    // await fetch(`http://localhost:8007/api/speech/?id=${this.props.id}`, {
+      // await fetch(`http://localhost:8007/api/speech/?id=${this.props.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -121,7 +123,7 @@ export default class Speech extends Component {
   deleteAction = async () => {
     const { speech, itemLoad, itemClassLoad } = this.props;
     await fetch(`https://devche.com/api/speech/?id=${this.props.id}`, {
-    // await fetch(`http://localhost:8007/api/speech/?id=${this.props.id}`, {
+      // await fetch(`http://localhost:8007/api/speech/?id=${this.props.id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -187,13 +189,13 @@ export default class Speech extends Component {
       if (queryID === apiID) {
         return false;
       }
-        return true;
+      return true;
     };
     return (
       <tbody>
         <tr>
           <th scope="row">{index}</th>
-          <td><img src={speech.class_img} alt="" height="25" width="25" title={speech.class}/></td>
+          <td><img src={speech.class_img} alt="" height="25" width="25" title={speech.class} /></td>
           <td>{speech.speech_date}</td>
           <td>{speech.title}</td>
           <td><img className="circle" src={speech.speaker_img} alt="" height="25" width="25" title={speech.speaker} /></td>

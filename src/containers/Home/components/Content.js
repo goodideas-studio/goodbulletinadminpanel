@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 // import PropTypes from 'prop-types';
-import { Container, Row, Col, Table, Form, FormGroup, Modal, ModalHeader, ModalBody, Label, Input, Button } from 'reactstrap';
+import { Container, Row, Col, Table, Form, FormGroup, Modal, ModalHeader, ModalBody, Label, Input, Button, Pagination, PaginationItem, PaginationLink } from 'reactstrap';
 import PropTypes from 'prop-types';
+import Flatpickr from 'react-flatpickr';
 import Speech from './Speech';
 
 import Cardboard from './Card-board';
@@ -21,6 +22,9 @@ export default class Content extends Component {
       speechSpeakerValid: false,
       speechMessageValid: false,
       formValid: false,
+
+      currentPage: 1,
+      todosPerPage: 3,
 
       speechDate: '',
       speechTitle: '',
@@ -45,6 +49,12 @@ export default class Content extends Component {
   createToggle() {
     this.setState({
       createModal: !this.state.createModal
+    });
+  }
+
+  handleClick = (event) => {
+    this.setState({
+      currentPage: Number(event.target.id)
     });
   }
 
@@ -132,6 +142,10 @@ export default class Content extends Component {
 
   serverItemCreate = async () => {
     // console.log(this.state.speechMessage);
+
+    // const test = this.state.speechMessage;
+
+    // console.log(test.replace(/\n/g, "<br>"));
 
     const classArray = this.state.classItem;
     const chooseClass = this.state.speechClass;
@@ -262,7 +276,13 @@ export default class Content extends Component {
   }
 
   render() {
-    const result = this.state.item.map((speech, index) => (
+    const { item, currentPage, todosPerPage } = this.state;
+
+    const indexOfLastTodo = currentPage * todosPerPage;
+    const indexOfFirstTodo = indexOfLastTodo - todosPerPage;
+    const currentTodos = item.slice(indexOfFirstTodo, indexOfLastTodo);
+
+    const renderTodos = currentTodos.map((todo, index) =>
       <Speech
         id={this.props.id}
         token={this.props.token}
@@ -271,9 +291,39 @@ export default class Content extends Component {
         classItem={this.state.classItem}
         index={index + 1}
         key={index}
-        speech={speech}
+        speech={todo}
       />
+    );
+
+    const pageNumbers = [];
+    for (let i = 1; i < Math.ceil(item.length / todosPerPage); i += 1) {
+      pageNumbers.push(i);
+    }
+
+    const renderPageNumbers = pageNumbers.map(number => (
+      <PaginationItem>
+        <PaginationLink
+          key={number}
+          id={number}
+          onClick={this.handleClick}>
+          {number}
+        </PaginationLink>
+      </PaginationItem>
     ));
+
+    // const result = this.state.item.map((speech, index) => (
+    //   <Speech
+    //     id={this.props.id}
+    //     token={this.props.token}
+    //     itemLoad={this.serverItemLoad}
+    //     itemClassLoad={this.getClassItem}
+    //     classItem={this.state.classItem}
+    //     index={index + 1}
+    //     key={index}
+    //     speech={speech}
+    //   />
+    // ));
+
     const classResult = this.state.classItem.map((classData, index) => (
       <option value={classData.name} key={index}>{classData.name}</option>
     ));
@@ -376,6 +426,15 @@ export default class Content extends Component {
                   </Row>
                 </div>
                 {/* <hr /> */}
+                <Pagination>
+                  <PaginationItem>
+                    <PaginationLink previous href="#" />
+                  </PaginationItem>
+                  {renderPageNumbers}
+                  <PaginationItem>
+                    <PaginationLink next href="#" />
+                  </PaginationItem>
+                </Pagination>
                 <div className="section-title">
                   演講活動資料
                     </div>
@@ -386,7 +445,8 @@ export default class Content extends Component {
                     <Form onSubmit={this.handleSubmit}>
                       <FormGroup>
                         <Label for="speechDatetime">演講時間</Label>
-                        <Input type="date" name="speechDate" id="datetime" placeholder="datetime" onChange={this.handleValueChange} value={this.state.speechData} />
+                        {/* <Input type="date" name="speechDate" id="datetime" placeholder="datetime" onChange={this.handleValueChange} value={this.state.speechData} /> */}
+                        <Flatpickr data-enable-time name="speechDate" id="datetime" defaultValue="2016-11-11 11:11" onChange={this.handleValueChange} />
                       </FormGroup>
                       <FormGroup>
                         <Label for="speechTitle">演講主題</Label>
@@ -428,7 +488,7 @@ export default class Content extends Component {
                           <th>講者</th>
                         </tr>
                       </thead>
-                      {result}
+                      {renderTodos}
                     </Table>
                   </Col>
                   {/* <Col xs="12" sm="4" lg="5">

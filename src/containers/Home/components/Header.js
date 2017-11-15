@@ -95,7 +95,7 @@ export default class Header extends Component {
             <Col xs="12" sm="12" className="padding-0">
               <Navbar light toggleable>
                 <NavbarToggler right onClick={this.toggle} />
-                <NavbarBrand href="/"><p>公佈欄-後台</p></NavbarBrand>
+                <NavbarBrand href="https://devche.com/goodideabillboard"><p>公佈欄-後台</p></NavbarBrand>
                 <Collapse isOpen={this.state.isOpen} navbar>
                   <Nav className="ml-auto" navbar>
                     <NavItem>
