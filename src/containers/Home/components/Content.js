@@ -165,8 +165,8 @@ export default class Content extends Component {
       });
     }
 
-    // await fetch(`https://devche.com/api/speech/?id=${this.props.id}`, {
-      await fetch(`http://localhost:8007/api/speech/?id=${this.props.id}`, {
+    await fetch(`https://devche.com/api/speech/?id=${this.props.id}`, {
+      // await fetch(`http://localhost:8007/api/speech/?id=${this.props.id}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
