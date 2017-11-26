@@ -11,8 +11,8 @@ export default class Login extends Component {
   }
 
   loginFun = () => {
-    // location.href = "https://devche.com/api/speechmember/login/facebook";
-    location.href = "http://localhost:8007/api/speechmember/login/facebook";
+    location.href = "https://devche.com/api/speechmember/login/facebook";
+    // location.href = "http://localhost:8007/api/speechmember/login/facebook";
   }
 
   render() {

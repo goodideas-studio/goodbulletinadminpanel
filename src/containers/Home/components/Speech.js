@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Form, FormGroup, Label, Input } from 'reactstrap';
 
-
 export default class Speech extends Component {
   constructor(props) {
     super(props);
@@ -38,7 +37,7 @@ export default class Speech extends Component {
     speech: PropTypes.object,
     itemLoad: PropTypes.func,
     itemClassLoad: PropTypes.func,
-    classItem: PropTypes.array
+    classItem: PropTypes.array,
     // POST method
     // speaker: PropTypes.string,
     // speechDate: PropTypes.string,
@@ -162,6 +161,7 @@ export default class Speech extends Component {
       editUrl: nextProps.speech.link
     });
   }
+
   render() {
     const { speech, index, classItem } = this.props;
     // 判斷link是否為空值，若為空值則不顯示link icon.

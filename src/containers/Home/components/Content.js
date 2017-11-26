@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 // import PropTypes from 'prop-types';
-import { Container, Row, Col, Table, Form, FormGroup, Modal, ModalHeader, ModalBody, Label, Input, Button, Pagination, PaginationItem, PaginationLink } from 'reactstrap';
+import { Container, Row, Col, Table, Form, FormGroup, Modal, ModalHeader, ModalBody, Label, Input, Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import Flatpickr from 'react-flatpickr';
 import Speech from './Speech';
+import Paging from './Paging';
 
 import Cardboard from './Card-board';
-// import speechJson from './data.json';
 
 export default class Content extends Component {
   constructor(props) {
@@ -16,15 +16,15 @@ export default class Content extends Component {
       classItem: [],
       memberItem: [],
       createModal: false,
+      pageNumbers: [],
+
+      pageOfItems: [],
 
       speechDateValid: false,
       speechTitleValid: false,
       speechSpeakerValid: false,
       speechMessageValid: false,
       formValid: false,
-
-      currentPage: 1,
-      todosPerPage: 3,
 
       speechDate: '',
       speechTitle: '',
@@ -52,9 +52,9 @@ export default class Content extends Component {
     });
   }
 
-  handleClick = (event) => {
+  onChangePage = (pageOfItems) => {
     this.setState({
-      currentPage: Number(event.target.id)
+      pageOfItems
     });
   }
 
@@ -124,7 +124,8 @@ export default class Content extends Component {
         return response.json().then((data) => {
           // 依造日期排序
           const dataSorting = data.result.sort((a, b) => new Date(b.speech_date) - new Date(a.speech_date));
-          dataSorting.forEach((element) => {
+          dataSorting.forEach((element, index) => {
+            element.speechId = index + 1;
             if (element.link === "null" || element.link === null) {
               element.link = "";
             }
@@ -172,22 +173,22 @@ export default class Content extends Component {
         'x-access-token': this.props.token
       },
       body: JSON.stringify({
-        speech_date: this.state.speechDate,
-        id: this.props.id,
-        title: this.state.speechTitle,
+        // speech_date: this.state.speechDate,
+        // id: this.props.id,
+        // title: this.state.speechTitle,
 
-        // 默認方式輸入speaker跟speaker_img
-        speaker: this.state.memberItem.displayName,
-        speaker_img: this.state.memberItem.photos,
+        // // 默認方式輸入speaker跟speaker_img
+        // speaker: this.state.memberItem.displayName,
+        // speaker_img: this.state.memberItem.photos,
 
-        message: this.state.speechMessage,
-        link: this.state.speechUrl,
-        class: this.state.speechClass,
-        class_img: this.state.speechClassImg
+        // message: this.state.speechMessage,
+        // link: this.state.speechUrl,
+        // class: this.state.speechClass,
+        // class_img: this.state.speechClassImg
       })
     })
       .then((response) => {
-        // console.log(response);
+        console.log(response);
         if (!response.ok) throw new Error(response.statusText);
         response.json().then(data => data);
       })
@@ -276,40 +277,6 @@ export default class Content extends Component {
   }
 
   render() {
-    const { item, currentPage, todosPerPage } = this.state;
-
-    const indexOfLastTodo = currentPage * todosPerPage;
-    const indexOfFirstTodo = indexOfLastTodo - todosPerPage;
-    const currentTodos = item.slice(indexOfFirstTodo, indexOfLastTodo);
-
-    const renderTodos = currentTodos.map((todo, index) =>
-      <Speech
-        id={this.props.id}
-        token={this.props.token}
-        itemLoad={this.serverItemLoad}
-        itemClassLoad={this.getClassItem}
-        classItem={this.state.classItem}
-        index={index + 1}
-        key={index}
-        speech={todo}
-      />
-    );
-
-    const pageNumbers = [];
-    for (let i = 1; i < Math.ceil(item.length / todosPerPage); i += 1) {
-      pageNumbers.push(i);
-    }
-
-    const renderPageNumbers = pageNumbers.map(number => (
-      <PaginationItem>
-        <PaginationLink
-          key={number}
-          id={number}
-          onClick={this.handleClick}>
-          {number}
-        </PaginationLink>
-      </PaginationItem>
-    ));
 
     // const result = this.state.item.map((speech, index) => (
     //   <Speech
@@ -365,31 +332,31 @@ export default class Content extends Component {
         <Container>
           <Row className="margin-0">
             {/* <Col xs="12" md="2" sm="12" className="padding-0 left-none left-color left-col">
-            <div className="left-content">
-              <ul className="left-feature">
-                <li>
-                  <div className="inside-word">
-                    預留功能-0
+              <div className="left-content">
+                <ul className="left-feature">
+                  <li>
+                    <div className="inside-word">
+                      預留功能-0
                     </div>
-                </li>
-                <li>
-                  <div className="inside-word">
-                    預留功能-1
+                  </li>
+                  <li>
+                    <div className="inside-word">
+                      預留功能-1
                     </div>
-                </li>
-                <li>
-                  <div className="inside-word">
-                    預留功能-2
+                  </li>
+                  <li>
+                    <div className="inside-word">
+                      預留功能-2
                   </div>
-                </li>
-                <li>
-                  <div className="inside-word">
-                    預留功能-3
+                  </li>
+                  <li>
+                    <div className="inside-word">
+                      預留功能-3
                   </div>
-                </li>
-              </ul>
-            </div>
-          </Col> */}
+                  </li>
+                </ul>
+              </div>
+            </Col> */}
             <Col xs="12" md="12" sm="12" className="padding-0 right-color right-col">
               <div className="right-content">
                 {/* <div className="main-title">Main Title.</div> */}
@@ -425,16 +392,6 @@ export default class Content extends Component {
                     </Col>
                   </Row>
                 </div>
-                {/* <hr /> */}
-                <Pagination>
-                  <PaginationItem>
-                    <PaginationLink previous href="#" />
-                  </PaginationItem>
-                  {renderPageNumbers}
-                  <PaginationItem>
-                    <PaginationLink next href="#" />
-                  </PaginationItem>
-                </Pagination>
                 <div className="section-title">
                   演講活動資料
                     </div>
@@ -476,7 +433,13 @@ export default class Content extends Component {
                   </ModalBody>
                 </Modal>
                 <Row>
-                  {/* <Col xs="12" sm="8" lg="7"> */}
+                  <Col xs="12" sm="12" lg="12">
+                    <div className="center">
+                      <Paging items={this.state.item} onChangePage={this.onChangePage} />
+                    </div>
+                  </Col>
+                </Row>
+                <Row>
                   <Col xs="12" sm="12" lg="12">
                     <Table hover className="speech-td table-message">
                       <thead>
@@ -488,37 +451,26 @@ export default class Content extends Component {
                           <th>講者</th>
                         </tr>
                       </thead>
-                      {renderTodos}
+                      {this.state.pageOfItems.map(element =>
+                        <Speech
+                          id={this.props.id}
+                          token={this.props.token}
+                          itemLoad={this.serverItemLoad}
+                          itemClassLoad={this.getClassItem}
+                          classItem={this.state.classItem}
+                          index={element.speechId}
+                          key={element.speechId}
+                          speech={element}
+                        />
+                      )}
                     </Table>
                   </Col>
-                  {/* <Col xs="12" sm="4" lg="5">
-                  <Form className="form-space" onSubmit={this.handleSubmit}>
-                    <FormGroup>
-                      <Label className="form-title" for="speechDatetime">演講時間</Label>
-                      <Input type="date" name="datetime" id="datetime" placeholder="datetime" onChange={this.handleDateChange} value={this.state.speechData} />
-                    </FormGroup>
-                    <FormGroup>
-                      <Label className="form-title" for="speechTitle">演講主題</Label>
-                      <Input type="title" name="title" id="title" placeholder="title" onChange={this.handleTitleChange} value={this.state.speechTitle} />
-                    </FormGroup>
-                    <FormGroup>
-                      <Label className="form-title" for="speechName">講者</Label>
-                      <Input type="name" name="name" id="name" placeholder="name" onChange={this.handleSpeakerChange} value={this.state.speechSpeaker} />
-                    </FormGroup>
-                    <FormGroup>
-                      <Label className="form-title" for="speechContent">演講內容</Label>
-                      <Input type="textarea" name="text" id="text" onChange={this.handleMessageChange} value={this.state.speechMessage} />
-                    </FormGroup>
-                    <Button color="primary">Do Something</Button>{' '}
-                    <Button color="secondary">Cancel</Button>
-                  </Form>
-                </Col> */}
                 </Row>
               </div>
             </Col>
           </Row>
         </Container>
-      </content>
+      </content >
     );
   }
 }

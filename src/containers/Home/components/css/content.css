@@ -162,6 +162,18 @@ hr {
   }
 }
 
+/* paging component */
+
+.pointer {
+  cursor: pointer;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+
+}
+
 /* speech component */
 
 .modal-space{
