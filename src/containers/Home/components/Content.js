@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 // import PropTypes from 'prop-types';
 import { Container, Row, Col, Table, Form, FormGroup, Modal, ModalHeader, ModalBody, Label, Input, Button } from 'reactstrap';
 import PropTypes from 'prop-types';
-import Flatpickr from 'react-flatpickr';
+// import Flatpickr from 'react-flatpickr';
 import Speech from './Speech';
 import Paging from './Paging';
 
@@ -32,7 +32,7 @@ export default class Content extends Component {
       speechMessage: '',
       // class初始值
       speechClass: 'backend-end',
-      speechClassImg: '',
+      speechClassImg: 'https://cdn3.iconfinder.com/data/icons/illustricon-tech/512/development.browser.gears.-512.png',
       speechUrl: ''
     };
 
@@ -165,30 +165,30 @@ export default class Content extends Component {
       });
     }
 
-    await fetch(`https://devche.com/api/speech/?id=${this.props.id}`, {
-      // await fetch(`http://localhost:8007/api/speech/?id=${this.props.id}`, {
+    // await fetch(`https://devche.com/api/speech/?id=${this.props.id}`, {
+      await fetch(`http://localhost:8007/api/speech/?id=${this.props.id}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-access-token': this.props.token
       },
       body: JSON.stringify({
-        // speech_date: this.state.speechDate,
-        // id: this.props.id,
-        // title: this.state.speechTitle,
+        speech_date: this.state.speechDate,
+        id: this.props.id,
+        title: this.state.speechTitle,
 
-        // // 默認方式輸入speaker跟speaker_img
-        // speaker: this.state.memberItem.displayName,
-        // speaker_img: this.state.memberItem.photos,
+        // 默認方式輸入speaker跟speaker_img
+        speaker: this.state.memberItem.displayName,
+        speaker_img: this.state.memberItem.photos,
 
-        // message: this.state.speechMessage,
-        // link: this.state.speechUrl,
-        // class: this.state.speechClass,
-        // class_img: this.state.speechClassImg
+        message: this.state.speechMessage,
+        link: this.state.speechUrl,
+        class: this.state.speechClass,
+        class_img: this.state.speechClassImg
       })
     })
       .then((response) => {
-        console.log(response);
+        // console.log(response);
         if (!response.ok) throw new Error(response.statusText);
         response.json().then(data => data);
       })
@@ -402,8 +402,8 @@ export default class Content extends Component {
                     <Form onSubmit={this.handleSubmit}>
                       <FormGroup>
                         <Label for="speechDatetime">演講時間</Label>
-                        {/* <Input type="date" name="speechDate" id="datetime" placeholder="datetime" onChange={this.handleValueChange} value={this.state.speechData} /> */}
-                        <Flatpickr data-enable-time name="speechDate" id="datetime" defaultValue="2016-11-11 11:11" onChange={this.handleValueChange} />
+                        <Input type="date" name="speechDate" id="datetime" placeholder="datetime" onChange={this.handleValueChange} value={this.state.speechDate} />
+                        {/* <Flatpickr data-enable-time name="speechDate" id="datetime" defaultValue="2016-11-11 11:11" onChange={this.handleValueChange} /> */}
                       </FormGroup>
                       <FormGroup>
                         <Label for="speechTitle">演講主題</Label>
